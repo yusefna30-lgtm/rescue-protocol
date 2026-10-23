@@ -190,18 +190,43 @@
       justify-content: center;
       background: #000;
     }
-    .strobe-exit-btn {
+    .strobe-controls-container {
       position: absolute;
       top: 24px;
-      background: rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      z-index: 100000;
+    }
+    .strobe-exit-btn {
+      background: rgba(0, 0, 0, 0.85);
       border: 2px solid #fff;
       color: #fff;
-      padding: 12px 24px;
+      padding: 10px 22px;
       border-radius: 30px;
       font-weight: 900;
-      font-size: 1rem;
+      font-size: 0.95rem;
       cursor: pointer;
     }
+    .strobe-mode-bar {
+      display: flex;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 6px 14px;
+      border-radius: 25px;
+      border: 1px solid #334155;
+    }
+    .strobe-color-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid rgba(255,255,255,0.4);
+      transition: transform 0.1s ease;
+    }
+    .strobe-color-btn:active { transform: scale(0.9); }
+    .strobe-color-btn.active { border-color: #fff; box-shadow: 0 0 10px #fff; }
 
     /* التذييل التكتيكي */
     .footer-credits {
@@ -342,7 +367,7 @@
         <span class="card-tag">BEACON-SOS</span>
       </div>
       <p style="font-size:0.72rem; color:var(--text-muted); margin-bottom:10px;">
-        تحويل شاشة الجوال بالكامل إلى وميض تحذيري قوي لوضعه على طبلون السيارة أثناء التوقف الاضطراري ليلاً.
+        تحويل شاشة الجوال بالكامل إلى وميض تحذيري قوي لوضعه على طبلون السيارة أثناء التوقف الاضطراري ليلاً مع أوضاع ألوان متعددة.
       </p>
       <button class="btn-action btn-strobe" onclick="startStrobeBeacon()">
         <span>⚡ تشغيل الفلاشر التحذيري الفوري</span>
@@ -359,9 +384,17 @@
 
 </div>
 
-<!-- شاشة الفلاشر لكامل الشاشة -->
+<!-- شاشة الفلاشر لكامل الشاشة مع خيارات الألوان المباشرة -->
 <div id="fullscreenStrobe">
-  <button class="strobe-exit-btn" onclick="stopStrobeBeacon()">إيقاف الفلاشر (X)</button>
+  <div class="strobe-controls-container">
+    <button class="strobe-exit-btn" onclick="stopStrobeBeacon()">إيقاف الفلاشر (✕)</button>
+    <div class="strobe-mode-bar">
+      <button class="strobe-color-btn active" id="btnModePolice" onclick="setStrobeMode('police')" style="background:linear-gradient(90deg, #ef4444 50%, #2563eb 50%);" title="أحمر وأزرق"></button>
+      <button class="strobe-color-btn" id="btnModeOrange" onclick="setStrobeMode('orange')" style="background:#f59e0b;" title="برتقالي تحذيري"></button>
+      <button class="strobe-color-btn" id="btnModeRed" onclick="setStrobeMode('red')" style="background:#ef4444;" title="أحمر طوارئ"></button>
+      <button class="strobe-color-btn" id="btnModeWhite" onclick="setStrobeMode('white')" style="background:#ffffff;" title="أبيض ناصع"></button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -483,21 +516,48 @@
     alert("✅ تم تحديث بيانات الملف الطبي بنجاح.");
   }
 
-  // 5. منطق فلاشر الاستغاثة
+  // 5. منطق فلاشر الاستغاثة المتعدد الألوان
   let strobeTimer = null;
+  let currentStrobeMode = 'police'; // الوضع الافتراضي: تبديل أحمر وأزرق
+
+  function setStrobeMode(mode) {
+    currentStrobeMode = mode;
+    ['btnModePolice', 'btnModeOrange', 'btnModeRed', 'btnModeWhite'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('active');
+    });
+
+    if (mode === 'police') document.getElementById('btnModePolice').classList.add('active');
+    if (mode === 'orange') document.getElementById('btnModeOrange').classList.add('active');
+    if (mode === 'red') document.getElementById('btnModeRed').classList.add('active');
+    if (mode === 'white') document.getElementById('btnModeWhite').classList.add('active');
+  }
+
   function startStrobeBeacon() {
     const el = document.getElementById('fullscreenStrobe');
     el.style.display = 'flex';
-    let isOrange = true;
+    clearInterval(strobeTimer);
+
+    let state = false;
     strobeTimer = setInterval(() => {
-      el.style.backgroundColor = isOrange ? 'var(--rescue-orange)' : '#000';
-      isOrange = !isOrange;
-    }, 120);
+      state = !state;
+      if (currentStrobeMode === 'orange') {
+        el.style.backgroundColor = state ? '#f59e0b' : '#000000';
+      } else if (currentStrobeMode === 'red') {
+        el.style.backgroundColor = state ? '#ef4444' : '#000000';
+      } else if (currentStrobeMode === 'white') {
+        el.style.backgroundColor = state ? '#ffffff' : '#000000';
+      } else if (currentStrobeMode === 'police') {
+        el.style.backgroundColor = state ? '#ef4444' : '#2563eb';
+      }
+    }, 110);
   }
 
   function stopStrobeBeacon() {
     clearInterval(strobeTimer);
-    document.getElementById('fullscreenStrobe').style.display = 'none';
+    const el = document.getElementById('fullscreenStrobe');
+    el.style.display = 'none';
+    el.style.backgroundColor = '#000000';
   }
 
   window.onload = () => {
