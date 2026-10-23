@@ -73,7 +73,7 @@
       white-space: nowrap;
     }
 
-    /* شبكة اختيار الأداة (بدون زحمة) */
+    /* شبكة التبويبات الأربعة */
     .nav-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -102,7 +102,7 @@
     .nav-title { font-size: 0.85rem; font-weight: 800; color: #fff; }
     .nav-desc { font-size: 0.65rem; color: var(--text-muted); }
 
-    /* منطقة عرض الأداة المحددة فقط */
+    /* منطقة عرض الأداة المحددة */
     .active-panel {
       margin-top: 4px;
       background: var(--bg-card);
@@ -127,7 +127,7 @@
     }
     .panel-title { font-size: 0.95rem; font-weight: 900; color: var(--rescue-orange); }
 
-    /* تنسيقات مشتركة للأزرار والعناصر */
+    /* تنسيقات الأزرار */
     .btn-action {
       width: 100%;
       border: none;
@@ -226,7 +226,7 @@
 
 <div class="app-shell">
 
-  <!-- الترويسة التكتيكية -->
+  <!-- الترويسة -->
   <div class="hud-bar">
     <div class="hud-label">URBAN RESCUE PROTOCOL</div>
     <div class="hud-status" id="gpsStatus">● GPS متصل</div>
@@ -241,7 +241,7 @@
     <div class="sos-badge">فتح النجدة</div>
   </div>
 
-  <!-- شبكة التبويبات الأربعة النظيفة -->
+  <!-- شبكة التبويبات -->
   <div class="nav-grid">
     <div class="nav-card active" id="tab-car" onclick="openSection('car')">
       <span class="nav-icon">📍</span>
@@ -265,7 +265,7 @@
     </div>
   </div>
 
-  <!-- الأداة 1: محدد موقع السيارة -->
+  <!-- 1. محدد موقع السيارة -->
   <div class="active-panel" id="panel-car">
     <div class="panel-header">
       <span class="panel-title">📍 تثبيت وتتبع مكان المركبة</span>
@@ -281,7 +281,7 @@
     </div>
   </div>
 
-  <!-- الأداة 2: طوارئ الطريق والسطحات -->
+  <!-- 2. طوارئ الطريق -->
   <div class="active-panel" id="panel-radar" style="display:none;">
     <div class="panel-header">
       <span class="panel-title">🚗 رادار الأعطال السريع</span>
@@ -306,7 +306,7 @@
     </div>
   </div>
 
-  <!-- الأداة 3: فلاشر التحذير -->
+  <!-- 3. فلاشر التحذير -->
   <div class="active-panel" id="panel-strobe" style="display:none;">
     <div class="panel-header">
       <span class="panel-title">⚡ فلاشر الاستغاثة للشاشة</span>
@@ -317,7 +317,7 @@
     <button class="btn-action btn-red" onclick="startStrobeBeacon()">تشغيل الفلاشر بكامل الشاشة</button>
   </div>
 
-  <!-- الأداة 4: الملف الطبي -->
+  <!-- 4. الملف الطبي -->
   <div class="active-panel" id="panel-ice" style="display:none;">
     <div class="panel-header">
       <span class="panel-title">🩸 بطاقة الطوارئ الطبية (ICE)</span>
@@ -326,11 +326,11 @@
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:0.8rem; background:#090c12; padding:10px; border-radius:10px;">
       <div><span style="color:var(--text-muted); font-size:0.68rem;">فصيلة الدم:</span> <b id="iceBlood" style="color:#fff;">O+</b></div>
       <div><span style="color:var(--text-muted); font-size:0.68rem;">الحساسية:</span> <b id="iceAllergy" style="color:#fff;">بنسلين</b></div>
-      <div style="grid-column: span 2;"><span style="color:var(--text-muted); font-size:0.68rem;">طوارئ:</span> <b id="icePhone" style="color:#fff;">0500000000</b></div>
+      <div style="grid-column: span 2;"><span style="color:var(--text-muted); font-size:0.68rem;">طوارئ:</span> <b id="icePhone" style="color:#fff;">+966502777884</b></div>
     </div>
   </div>
 
-  <!-- الأداة 5: شاشة استعارة هاتف غريب المنبثقة -->
+  <!-- 5. شاشة استعارة هاتف غريب -->
   <div class="active-panel" id="panel-stranger" style="display:none; border-color:var(--danger-red);">
     <div class="panel-header">
       <span class="panel-title" style="color:var(--danger-red);">📱 استعارة هاتف شخص آخر</span>
@@ -365,9 +365,8 @@
 
 <script>
   const CAR_KEY = "RESCUE_CAR_ANCHOR_V1";
-  const ICE_KEY = "RESCUE_ICE_PROFILE_V1";
+  const ICE_KEY = "RESCUE_ICE_PROFILE_V2"; // تحديث المفتاح لتثبيت الرقم الجديد تلقائياً
 
-  // إدارة التبويبات لمنع الزحمة
   function openSection(name) {
     const panels = ['car', 'radar', 'strobe', 'ice', 'stranger'];
     panels.forEach(p => {
@@ -382,7 +381,6 @@
     });
   }
 
-  // محدد موقع السيارة
   function setCarAnchor() {
     if (!navigator.geolocation) return alert("GPS غير مدعوم");
     navigator.geolocation.getCurrentPosition(pos => {
@@ -425,15 +423,19 @@
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   }
 
-  // الملف الطبي وهاتف غريب
   function getIceProfile() {
     const saved = localStorage.getItem(ICE_KEY);
-    return saved ? JSON.parse(saved) : { name: "نبيل النمر", phone: "966500000000", blood: "O+", allergy: "بنسلين" };
+    return saved ? JSON.parse(saved) : { 
+      name: "نبيل النمر", 
+      phone: "966502777884", 
+      blood: "O+", 
+      allergy: "بنسلين" 
+    };
   }
 
   function renderIceProfile() {
     const p = getIceProfile();
-    document.getElementById('icePhone').innerText = p.phone;
+    document.getElementById('icePhone').innerText = `+${p.phone}`;
     document.getElementById('iceBlood').innerText = p.blood;
     document.getElementById('iceAllergy').innerText = p.allergy;
   }
@@ -448,22 +450,22 @@
   }
 
   function callEmergencyContact() {
-    window.location.href = `tel:${getIceProfile().phone}`;
+    const p = getIceProfile();
+    window.location.href = `tel:+${p.phone}`;
   }
 
   function sendStrangerWhatsApp() {
     const p = getIceProfile();
     navigator.geolocation.getCurrentPosition(pos => {
       const url = `https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`;
-      const msg = encodeURIComponent(`🚨 نداء استغاثة: أنا في هذا الموقع وبحاجة للمساعدة:\n${url}`);
+      const msg = encodeURIComponent(`🚨 نداء استغاثة عاجل:\nصاحب هذا القميص (${p.name}) يحتاج لمساعدتك.\nتم إرسال هذا النداء من موقع الحادث الحالي:\n${url}`);
       window.open(`https://api.whatsapp.com/send?phone=${p.phone}&text=${msg}`, '_blank');
     }, () => {
-      const msg = encodeURIComponent(`🚨 نداء استغاثة عاجل من هاتف شخص آخر.`);
+      const msg = encodeURIComponent(`🚨 نداء استغاثة عاجل:\nصاحب هذا القميص (${p.name}) يحتاج لمساعدتك فوراً.`);
       window.open(`https://api.whatsapp.com/send?phone=${p.phone}&text=${msg}`, '_blank');
     });
   }
 
-  // فلاشر الشاشة
   let strobeTimer = null;
   let currentStrobeMode = 'police';
 
